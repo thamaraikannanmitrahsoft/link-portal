@@ -1,0 +1,80 @@
+<!-- Skeletons -->
+@if (loading) {
+  @for (i of [1,2,3,4,5]; track i) {
+    <div class="user-card skeleton">
+      <div class="sk-avatar"></div>
+      <div class="sk-info">
+        <div class="sk-bar wide"></div>
+        <div class="sk-bar narrow"></div>
+      </div>
+      <div class="sk-btn"></div>
+    </div>
+  }
+}
+
+<!-- Error -->
+@if (error) {
+  <div class="state-panel">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+      stroke="#555" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p class="state-title">Failed to load followers</p>
+    <p class="state-sub">Something went wrong. Please try again.</p>
+    <button class="retry-btn" (click)="loadFollowers('')">Retry</button>
+  </div>
+}
+
+<!-- List -->
+@if (!loading && !error) {
+
+  @if (followers.length === 0) {
+    <div class="state-panel">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+        stroke="#444" stroke-width="1.2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <p class="state-title">No followers yet</p>
+      <p class="state-sub">When someone follows you, they'll appear here.</p>
+    </div>
+  }
+
+  @for (user of followers; track user._id) {
+    <div class="user-card">
+
+      <div class="user-avatar" [style.background]="getAvatarColor(user.name)">
+        {{ getInitials(user.name) }}
+      </div>
+
+      <div class="user-info">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-email">{{ user.email }}</span>
+      </div>
+
+      <button class="follow-btn"
+        [class.following]="user.isFollowing"
+        (click)="toggleFollow(user)">
+        @if (user.isFollowing) {
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Following
+        } @else {
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Follow
+        }
+      </button>
+
+    </div>
+  }
+}

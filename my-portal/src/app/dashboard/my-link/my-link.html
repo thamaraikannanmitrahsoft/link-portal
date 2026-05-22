@@ -1,0 +1,150 @@
+<!-- ── Skeletons ── -->
+<ng-container *ngIf="loading">
+  <div class="post skeleton-post" *ngFor="let i of [1,2,3,4]">
+    <div class="sk-ava"></div>
+    <div class="sk-content">
+      <div class="sk-row">
+        <div class="sk-bar w40"></div>
+        <div class="sk-bar w20"></div>
+      </div>
+      <div class="sk-bar w90 mt8"></div>
+      <div class="sk-bar w70 mt6"></div>
+      <div class="sk-bar w50 mt6"></div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- ── Error ── -->
+<div class="state-panel" *ngIf="error">
+  <div class="state-icon-wrap error">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+  </div>
+  <p class="state-title">Something went wrong</p>
+  <p class="state-sub">We couldn't load your feed right now.</p>
+  <button class="retry-btn" (click)="loadPosts()">Try again</button>
+</div>
+
+<!-- ── Posts ── -->
+<ng-container *ngIf="!loading && !error">
+
+  <article
+    class="post"
+    *ngFor="let post of posts; let i = index"
+    [style.animation-delay]="(i * 0.05) + 's'">
+
+    <div class="post-aside">
+      <div class="post-avatar" [style.background]="getAvatarColor(post.userId.name)">
+        {{ getInitials(post.userId.name) }}
+      </div>
+      <div class="post-thread-line"></div>
+    </div>
+
+    <div class="post-main">
+
+      <div class="post-header">
+        <div class="post-identity">
+          <span class="post-name">{{ post.userId.name || 'Unknown' }}</span>
+          <span class="post-verified">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#1d9bf0">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </span>
+          <span class="post-handle">&#64;{{ (post.userId.email || '').split('@')[0] }}</span>
+          <span class="post-sep">·</span>
+          <span class="post-time">{{ timeAgo(post.createdAt) }}</span>
+        </div>
+        <button class="post-menu-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="2"/>
+            <circle cx="12" cy="12" r="2"/>
+            <circle cx="19" cy="12" r="2"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="post-text" *ngIf="post.text">{{ post.text }}</p>
+
+      <div class="media-grid"
+        *ngIf="post.media && post.media.length"
+        [class.single]="post.media.length === 1"
+        [class.double]="post.media.length === 2"
+        [class.multi]="post.media.length >= 3">
+        <div class="media-cell" *ngFor="let m of post.media">
+          <img *ngIf="m.type === 'image'" [src]="m.url" alt="" loading="lazy"/>
+          <video *ngIf="m.type === 'video'" [src]="m.url" controls></video>
+        </div>
+      </div>
+
+      <div class="post-actions">
+
+        <button class="action-btn reply">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span *ngIf="post.commentsCount > 0">{{ post.commentsCount }}</span>
+        </button>
+
+        <button class="action-btn repost">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <polyline points="17 1 21 5 17 9"/>
+            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+            <polyline points="7 23 3 19 7 15"/>
+            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+          </svg>
+        </button>
+
+        <button class="action-btn like"
+          [class.liked]="post.likeState.liked"
+          (click)="toggleLike(post)">
+          <svg width="17" height="17" viewBox="0 0 24 24"
+            [attr.fill]="post.likeState.liked ? 'currentColor' : 'none'"
+            stroke="currentColor" stroke-width="1.8">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span *ngIf="post.likeState.count > 0">{{ post.likeState.count }}</span>
+        </button>
+
+        <button class="action-btn bookmark"
+          [class.bookmarked]="post.bookmarked"
+          (click)="toggleBookmark(post)">
+          <svg width="17" height="17" viewBox="0 0 24 24"
+            [attr.fill]="post.bookmarked ? 'currentColor' : 'none'"
+            stroke="currentColor" stroke-width="1.8">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+        </button>
+
+        <button class="action-btn share">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </article>
+
+  <!-- ── Empty state ── -->
+  <div class="state-panel" *ngIf="posts.length === 0">
+    <div class="state-icon-wrap">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 12h8M12 8v8"/>
+      </svg>
+    </div>
+    <p class="state-title">Nothing here yet</p>
+    <p class="state-sub">Follow people to see their posts.</p>
+  </div>
+
+</ng-container>

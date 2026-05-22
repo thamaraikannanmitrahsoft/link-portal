@@ -1,0 +1,7 @@
+<div class="callback-wrapper">
+  <div class="callback-card">
+    <div *ngIf="!isError()" class="spinner"></div>
+    <div *ngIf="isError()" class="error-icon">⚠️</div>
+    <p class="message">{{ message() }}</p>
+  </div>
+</div>

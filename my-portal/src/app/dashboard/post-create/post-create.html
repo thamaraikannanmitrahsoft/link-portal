@@ -1,0 +1,177 @@
+<div class="post-page">
+  <div class="post-card">
+
+    <!-- Header -->
+    <div class="post-header">
+      <div>
+        <h2>New Post</h2>
+        <p>Share your thoughts with the world</p>
+      </div>
+    </div>
+
+    <!-- Post Body -->
+    <div class="post-body">
+
+      <textarea
+        #textareaRef
+        placeholder="What's happening?"
+        [(ngModel)]="postContent"
+        maxlength="280"
+        (click)="onTextareaClick($event)"
+        (keyup)="onTextareaKeyup($event)"
+      ></textarea>
+
+      <!-- Media Grid Preview -->
+      <div class="media-grid" [ngClass]="getMediaGridClass()" *ngIf="mediaPreviews.length > 0">
+        <div class="media-item" *ngFor="let preview of mediaPreviews; let i = index">
+          <img
+            *ngIf="preview.type === 'image' || preview.type === 'gif'"
+            [src]="preview.url"
+            [alt]="preview.type + ' preview'"
+          />
+          <video *ngIf="preview.type === 'video'" [src]="preview.url" controls muted></video>
+          <button class="remove-media" (click)="removeMedia(i)" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+          </button>
+          <span class="gif-badge" *ngIf="preview.type === 'gif'">GIF</span>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="bottom-section">
+
+        <div class="left-actions">
+
+          <!-- Image Upload -->
+          <label class="action-btn" [class.disabled]="mediaPreviews.length >= 4" title="Add Image">
+            <input type="file" accept="image/png,image/jpeg,image/webp"
+              (change)="onMediaSelect($event, 'image')"
+              [disabled]="mediaPreviews.length >= 4" multiple hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+              <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+            </svg>
+          </label>
+
+          <!-- Video Upload -->
+          <label class="action-btn" [class.disabled]="mediaPreviews.length >= 4" title="Add Video">
+            <input type="file" accept="video/mp4,video/webm,video/quicktime"
+              (change)="onMediaSelect($event, 'video')"
+              [disabled]="mediaPreviews.length >= 4" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M0 1a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1zm4 0v6h6V1H4zm6 8H4v6h6V9zm-6-1h6V7H4v1zm7-1h3v6h-3V8zm0 7h3v1h-3v-1zm-1-9h3v1h-3V6zM0 4h3v1H0V4zm0 3h3v1H0V7zm0 3h3v1H0v-1zm0 3h3v1H0v-1z"/>
+            </svg>
+          </label>
+
+          <!-- GIF Upload -->
+          <label class="action-btn gif-btn" [class.disabled]="mediaPreviews.length >= 4" title="Add GIF">
+            <input type="file" accept="image/gif"
+              (change)="onMediaSelect($event, 'gif')"
+              [disabled]="mediaPreviews.length >= 4" hidden>
+            GIF
+          </label>
+
+          <!-- Emoji Picker -->
+          <div class="emoji-wrapper">
+            <button class="action-btn emoji-toggle-btn" type="button"
+              (click)="toggleEmojiPicker($event)" title="Add Emoji">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
+              </svg>
+            </button>
+
+            <!-- Emoji Picker Panel -->
+            <div class="emoji-picker" *ngIf="showEmojiPicker" (click)="$event.stopPropagation()">
+
+              <!-- Search -->
+              <div class="emoji-search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="search-icon">
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search emojis..."
+                  [(ngModel)]="emojiSearchQuery"
+                  (ngModelChange)="onEmojiSearch($event)"
+                />
+              </div>
+
+              <!-- Category Tabs (hidden during search) -->
+              <div class="emoji-tabs" *ngIf="!isSearching">
+                <button
+                  *ngFor="let cat of emojiCategories; let i = index"
+                  class="emoji-tab"
+                  [class.active]="activeEmojiCategoryIndex === i"
+                  (click)="onCategoryChange(i)"
+                  type="button"
+                  [title]="cat.label"
+                >
+                  {{ cat.icon }}
+                </button>
+              </div>
+
+              <!-- Category label -->
+              <div class="emoji-category-label" *ngIf="!isSearching">
+                {{ emojiCategories[activeEmojiCategoryIndex].label }}
+              </div>
+              <div class="emoji-category-label" *ngIf="isSearching">
+                Results for "{{ emojiSearchQuery }}"
+              </div>
+
+              <!-- Loading state -->
+              <div class="emoji-loading" *ngIf="isLoadingEmojis">
+                <div class="emoji-spinner"></div>
+                <span>Loading emojis…</span>
+              </div>
+
+              <!-- Empty state -->
+              <div class="emoji-empty"
+                *ngIf="!isLoadingEmojis && activeEmojis.length === 0">
+                {{ isSearching ? 'No emojis found' : 'No emojis available' }}
+              </div>
+
+              <!-- Emoji Grid -->
+              <div class="emoji-grid" *ngIf="!isLoadingEmojis && activeEmojis.length > 0">
+                <button
+                  *ngFor="let emoji of activeEmojis"
+                  class="emoji-btn"
+                  type="button"
+                  (click)="insertEmoji(emoji.character)"
+                  [title]="emoji.unicodeName"
+                >
+                  {{ emoji.character }}
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="right-actions">
+          <span class="media-count" *ngIf="mediaPreviews.length > 0">
+            {{ mediaPreviews.length }}/4
+          </span>
+          <span class="count"
+            [class.warn]="postContent.length > 250"
+            [class.danger]="postContent.length >= 280">
+            {{ postContent.length }}/280
+          </span>
+          <button
+            class="post-btn"
+            [disabled]="(!postContent.trim() && mediaPreviews.length === 0) || isLoading"
+            (click)="createPost()"
+          >
+            <span *ngIf="!isLoading">Post</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
