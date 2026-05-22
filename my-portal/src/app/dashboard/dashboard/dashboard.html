@@ -1,0 +1,296 @@
+<div class="shell">
+
+  <!-- ── Left Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <div class="brand">
+        <!-- <div class="brand-mark">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.265 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+          </svg>
+        </div> -->
+        <div class="brand-mark">
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="44"
+      height="44"
+      viewBox="0 0 64 64"
+      fill="none"
+      class="logo-svg"
+    >
+
+      <defs>
+
+        <!-- Glow -->
+        <filter id="logoGlow">
+          <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <!-- Main Blue -->
+        <linearGradient
+          id="blueGradient"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="1"
+        >
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#2563eb"/>
+        </linearGradient>
+
+        <!-- Shadow -->
+        <linearGradient
+          id="grayGradient"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="1"
+        >
+          <stop offset="0%" stop-color="#cbd5e1"/>
+          <stop offset="100%" stop-color="#475569"/>
+        </linearGradient>
+
+      </defs>
+
+      <!-- Main L -->
+      <path
+        d="M24 14L20 40C19 48 24 54 31 54H45L52 46H35C30 46 27 42 28 37L32 14H24Z"
+        fill="url(#blueGradient)"
+        filter="url(#logoGlow)"
+      />
+
+      <!-- Wing -->
+      <path
+        d="M35 32C39 24 47 21 56 18C52 24 48 29 43 32C39 35 34 36 30 37L35 32Z"
+        fill="url(#blueGradient)"
+        opacity="0.95"
+      />
+
+      <!-- Shadow Wing -->
+      <path
+        d="M34 38C40 37 46 35 50 30C48 38 43 43 36 46L28 48L34 38Z"
+        fill="url(#grayGradient)"
+        opacity="0.7"
+      />
+
+    </svg>
+
+  </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-link active" href="#">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </span>
+          <span class="nav-label">Home</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </span>
+          <span class="nav-label">Explore</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </span>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </span>
+          <span class="nav-label">Messages</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">Bookmarks</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </span>
+          <span class="nav-label">Profile</span>
+        </a>
+        <a class="nav-link" href="#" (click)="logout()">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </span>
+          <span class="nav-label">Logout</span>
+        </a>
+      </nav>
+<!-- ── TOP IMAGE / BANNER ───────────────────────── -->
+<div class="sidebar-top-image">
+  <img src="assets/images/img1.png" alt="Profile Banner" />
+</div>
+      <div class="user-chip" (click)="userPage()">
+        <div class="user-chip-avatar">{{ name.charAt(0).toUpperCase() }}</div>
+        <div class="user-chip-info">
+          <span class="user-chip-name">{{ name }}</span>
+          <span class="user-chip-handle">{{ email }}</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" class="user-chip-more">
+          <circle cx="12" cy="5" r="1"/>
+          <circle cx="12" cy="12" r="1"/>
+          <circle cx="12" cy="19" r="1"/>
+        </svg>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ── Main Feed ── -->
+  <main class="feed">
+
+    <div class="feed-header">
+      <div class="feed-header-left">
+        <h1 class="feed-title">Home</h1>
+      </div>
+      <button class="feed-settings-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── Tabs ── -->
+    <div class="feed-tabs">
+      <button class="feed-tab"
+        [class.active]="activeTab === 'foryou'"
+        (click)="switchTab('foryou')">
+        For You
+      </button>
+      <button class="feed-tab"
+        [class.active]="activeTab === 'followers'"
+        (click)="switchTab('followers')">
+        Followers
+      </button>
+      <button class="feed-tab"
+        [class.active]="activeTab === 'following'"
+        (click)="switchTab('following')">
+        Following
+      </button>
+    </div>
+
+    <!-- ── Child route renders here (ForYou / Followers / Following) ── -->
+    <router-outlet></router-outlet>
+
+  </main>
+
+  <!-- ── Right Panel ── -->
+  <aside class="panel">
+
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="search-input" type="text" placeholder="Search"/>
+    </div>
+
+    <div class="widget">
+      <h3 class="widget-title">Trends for you</h3>
+      <div class="trend" *ngFor="let t of [
+        {tag:'#Angular', count:'12.4K', cat:'Technology'},
+        {tag:'#NodeJS', count:'8.1K', cat:'Development'},
+        {tag:'#TypeScript', count:'6.9K', cat:'Technology'},
+        {tag:'#WebDev', count:'5.2K', cat:'Development'}
+      ]">
+        <div class="trend-meta">
+          <span class="trend-cat">{{ t.cat }} · Trending</span>
+          <span class="trend-tag">{{ t.tag }}</span>
+          <span class="trend-count">{{ t.count }} posts</span>
+        </div>
+        <button class="trend-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="2"/>
+            <circle cx="12" cy="12" r="2"/>
+            <circle cx="19" cy="12" r="2"/>
+          </svg>
+        </button>
+      </div>
+      <button class="widget-more">Show more</button>
+    </div>
+
+    <div class="widget">
+      <h3 class="widget-title">Who to follow</h3>
+      <div class="suggest">
+        <div class="suggest-avatar" style="background:#7856ff">A</div>
+        <div class="suggest-info">
+          <span class="suggest-name">Anthropic</span>
+          <span class="suggest-handle">@anthropic</span>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="suggest">
+        <div class="suggest-avatar" style="background:#00ba7c">V</div>
+        <div class="suggest-info">
+          <span class="suggest-name">Vercel</span>
+          <span class="suggest-handle">@vercel</span>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <button class="widget-more">Show more</button>
+    </div>
+
+  </aside>
+
+  <!-- ── FAB ── -->
+  <div class="fab-backdrop" *ngIf="isFabOpen" (click)="closeFab()"></div>
+  <div class="fab-wrap" [class.open]="isFabOpen">
+    <div class="fab-menu">
+      <button class="fab-item" (click)="createPost()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        <span>New Post</span>
+      </button>
+      <button class="fab-item" (click)="openComments()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Comments</span>
+      </button>
+    </div>
+    <button class="fab-trigger" (click)="toggleFab()" [attr.aria-expanded]="isFabOpen">
+      <svg class="fab-plus" width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,170 @@
+// No host styles needed — dashboard shell handles bg and layout
+
+// ── User Card ──────────────────────────────────────────────────
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #1e1e24;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(255, 255, 255, 0.018); }
+  &.skeleton { pointer-events: none; }
+}
+
+// ── Avatar ─────────────────────────────────────────────────────
+.user-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+// ── Info ───────────────────────────────────────────────────────
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f0f0f2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 13px;
+  color: #8b8b99;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Follow Button ──────────────────────────────────────────────
+.follow-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid #f0f0f2;
+  background: #f0f0f2;
+  color: #0a0a0b;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover { background: #d0d3d4; border-color: #d0d3d4; }
+
+  &.following {
+    background: transparent;
+    border-color: #2a2a34;
+    color: #f0f0f2;
+
+    &:hover {
+      background: rgba(249, 24, 128, 0.1);
+      border-color: #f91880;
+      color: #f91880;
+    }
+  }
+}
+
+// ── Skeleton ───────────────────────────────────────────────────
+.sk-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #18181d;
+  flex-shrink: 0;
+  animation: shimmer 1.4s infinite ease-in-out;
+}
+
+.sk-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sk-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: #18181d;
+  animation: shimmer 1.4s infinite ease-in-out;
+
+  &.wide   { width: 55%; }
+  &.narrow { width: 35%; }
+}
+
+.sk-btn {
+  width: 90px;
+  height: 34px;
+  border-radius: 999px;
+  background: #18181d;
+  flex-shrink: 0;
+  animation: shimmer 1.4s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.7; }
+}
+
+// ── State Panel ────────────────────────────────────────────────
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 72px 32px;
+  text-align: center;
+}
+
+.state-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0f0f2;
+  margin: 0;
+}
+
+.state-sub {
+  font-size: 14px;
+  color: #8b8b99;
+  margin: 0;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.retry-btn {
+  margin-top: 8px;
+  padding: 9px 22px;
+  border-radius: 999px;
+  border: 1px solid #2a2a34;
+  background: transparent;
+  color: #f0f0f2;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: #18181d; }
+}

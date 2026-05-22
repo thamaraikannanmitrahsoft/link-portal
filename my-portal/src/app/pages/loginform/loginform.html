@@ -1,0 +1,201 @@
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center"
+     style="background-color: #0f1117;">
+
+  <div class="card border-0 p-4 p-md-5"
+       style="width: 420px; border-radius: 16px; background-color: #16181c; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+
+    <!-- Logo -->
+   <div class="text-center mb-4">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="60"
+    height="60"
+    viewBox="0 0 64 64"
+    fill="none"
+  >
+    <!-- Dark Background -->
+    <circle cx="32" cy="32" r="30" fill="#0f172a" />
+
+    <!-- Glow Effect -->
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      <linearGradient id="blueGradient" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1DA1F2"/>
+        <stop offset="100%" stop-color="#2563eb"/>
+      </linearGradient>
+
+      <linearGradient id="grayGradient" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#94a3b8"/>
+        <stop offset="100%" stop-color="#475569"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Main L Shape -->
+    <path
+      d="M24 14L20 40C19 48 24 54 31 54H45L52 46H35C30 46 27 42 28 37L32 14H24Z"
+      fill="url(#blueGradient)"
+      filter="url(#glow)"
+    />
+
+    <!-- Wing Shape -->
+    <path
+      d="M35 32C39 24 47 21 56 18C52 24 48 29 43 32C39 35 34 36 30 37L35 32Z"
+      fill="url(#blueGradient)"
+      opacity="0.95"
+    />
+
+    <!-- Shadow Wing -->
+    <path
+      d="M34 38C40 37 46 35 50 30C48 38 43 43 36 46L28 48L34 38Z"
+      fill="url(#grayGradient)"
+      opacity="0.7"
+    />
+  </svg>
+</div>
+
+    <h2 class="text-center fw-bold mb-1" style="color: #e7e9ea; font-size: 1.6rem; letter-spacing: -0.3px;">
+      Sign in to Link
+    </h2>
+    <p class="text-center mb-4" style="color: #71767b; font-size: 0.875rem;">
+      Welcome back. Enter your details below.
+    </p>
+
+    <!-- Email -->
+    <div class="mb-3">
+      <label class="form-label fw-medium" style="color: #71767b; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">
+        Email
+      </label>
+      <input
+        type="email"
+        class="form-control border-0 py-2 px-3"
+        placeholder="you@example.com"
+        [formField]="loginForm.email"
+         (input)="clearError('email')"
+        style="
+          background-color: #202327;
+          color: #e7e9ea;
+          border-radius: 10px;
+          font-size: 0.95rem;
+          outline: none;
+          box-shadow: none;
+          transition: border 0.2s;
+          border: 1.5px solid #2f3336 !important;
+        "
+        onfocus="this.style.borderColor='#1d9bf0'"
+        onblur="this.style.borderColor='#2f3336'"
+      >
+      <small class="text-danger" style="font-size: 0.78rem;">{{ errors().email }}</small>
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <label class="form-label fw-medium mb-0" style="color: #71767b; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">
+          Password
+        </label>
+        <a href="#" style="color: #1d9bf0; font-size: 0.78rem; text-decoration: none;">
+          Forgot password?
+        </a>
+      </div>
+      <input
+        type="password"
+        class="form-control border-0 py-2 px-3 mt-1"
+        placeholder="••••••••"
+        [formField]="loginForm.password"
+        (input)="clearError('password')"
+        style="
+          background-color: #202327;
+          color: #e7e9ea;
+          border-radius: 10px;
+          font-size: 0.95rem;
+          outline: none;
+          box-shadow: none;
+          border: 1.5px solid #2f3336 !important;
+          transition: border 0.2s;
+        "
+        onfocus="this.style.borderColor='#1d9bf0'"
+        onblur="this.style.borderColor='#2f3336'"
+      >
+      <small class="text-danger" style="font-size: 0.78rem;">{{ errors().password }}</small>
+    </div>
+
+    <!-- Login Button -->
+    <button
+      class="btn w-100 fw-semibold mt-3"
+      (click)="login()"
+      style="
+        background-color: #1d9bf0;
+        color: #fff;
+        border-radius: 999px;
+        padding: 10px 0;
+        font-size: 0.97rem;
+        letter-spacing: 0.2px;
+        border: none;
+        transition: background-color 0.2s, transform 0.1s;
+      "
+      onmouseover="this.style.backgroundColor='#1a8cd8'"
+      onmouseout="this.style.backgroundColor='#1d9bf0'"
+      onmousedown="this.style.transform='scale(0.98)'"
+      onmouseup="this.style.transform='scale(1)'"
+    >
+      Sign In
+    </button>
+
+    <!-- Divider -->
+    <div class="d-flex align-items-center my-4 gap-2">
+      <hr class="flex-grow-1 m-0" style="border-color: #2f3336;">
+      <span style="color: #71767b; font-size: 0.8rem; white-space: nowrap;">or continue with</span>
+      <hr class="flex-grow-1 m-0" style="border-color: #2f3336;">
+    </div>
+
+    <!-- Google OAuth Button -->
+   <button
+  class="btn w-100 fw-medium d-flex align-items-center justify-content-center gap-2"
+  style="
+    background-color: #202327;
+    color: #e7e9ea;
+    border: 1.5px solid #2f3336;
+    border-radius: 999px;
+    padding: 9px 0;
+    font-size: 0.92rem;
+    transition: border-color 0.2s, background-color 0.2s;
+  "
+  onmouseover="this.style.borderColor='#1d9bf0'; this.style.backgroundColor='#1d9bf012'"
+  onmouseout="this.style.borderColor='#2f3336'; this.style.backgroundColor='#202327'"
+  (click)="loginWithGoogle()"
+  [disabled]="ssoLoading()"
+>
+  <span
+    *ngIf="ssoLoading()"
+    class="spinner-border spinner-border-sm"
+    role="status"
+  ></span>
+
+  <svg *ngIf="!ssoLoading()" width="18" height="18" viewBox="0 0 48 48">
+    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+    <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+  </svg>
+
+  {{ ssoLoading() ? 'Redirecting to Google…' : 'Continue with Google' }}
+</button>
+
+    <!-- Sign Up -->
+    <p class="text-center mt-4 mb-0" style="color: #71767b; font-size: 0.875rem;">
+      Don't have an account?
+      <a routerLink="/register" style="color: #1d9bf0; text-decoration: none; font-weight: 500;">
+        Sign Up
+      </a>
+    </p>
+
+  </div>
+
+</div>
