@@ -8,10 +8,10 @@ export const environment = {
     appId: "1:191409817787:web:1090fef67ed7fefbb8419e",
   },
 
-  vapidKey: "BIHzNvluH_n2hf1Ca-4k-6D1RGhtmWYy14mq7vgLty5eIEXR4XEsz1C3TndhCzGZF41nsFGZZUTCZyY1Kkpmm_o",
-   apiUrl: 'http://192.168.3.65:3000/api',
+  vapidKey: "BF4IzdS6yhEYraT5DjdHR-Agnntawya5JTpqhoSS4lp5b6b0zhKrLWnoTUEkt3tOWbePRacPxb-Xazg-7PgvlMQ",
+   apiUrl: '/api',
    production: false,
-
+ socketUrl: 'http://192.168.3.65:3000',
 
     sso: {
    

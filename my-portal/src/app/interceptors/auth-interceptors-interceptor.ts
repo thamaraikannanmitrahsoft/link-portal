@@ -1,48 +1,41 @@
+// auth-interceptor.ts
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';           // ✅ fixed — NOT from primitives/di
+import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs'; // ✅ fixed — NOT from internal paths
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../service/auth-service';
 
 export const authInterceptorsInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router      = inject(Router);
 
-  const token = localStorage.getItem('accessToken');
-
-  // Skip adding token for auth endpoints
   const isAuthEndpoint =
-    req.url.includes('/auth/Login') ||
-    req.url.includes('/auth/Register') ||
-    req.url.includes('/auth/refresh') ||
+    req.url.includes('/auth/Login')    ||
+    req.url.includes('/auth/register') ||
+    req.url.includes('/auth/refresh')  ||
     req.url.includes('/api/token');
 
-  const newreq = (token && !isAuthEndpoint)
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : req;
-
-  return next(newreq).pipe(
+  // ✅ withCredentials: true — browser attaches HttpOnly cookies automatically
+  // ✅ No manual Authorization header needed
+  const newReq = req.clone({ withCredentials: true });
+// console.log(newReq,"newReq");
+//  console.log(`[Interceptor] ${req.method} ${req.url}`)
+  return next(newReq).pipe(
     catchError((error: HttpErrorResponse) => {
 
-      // Token expired — try refresh once
       if (error.status === 401 && !isAuthEndpoint) {
+        //  console.log('[Interceptor] Attempting token refresh...');
         return authService.refreshToken().pipe(
-          switchMap((res: any) => {
-            // Save new token
-            const newAccessToken = res.data?.accessToken ?? res.accessToken;
-            localStorage.setItem('accessToken', newAccessToken);
-           
-
-            // Retry original request with new token
-            const retryReq = req.clone({
-              setHeaders: { Authorization: `Bearer ${newAccessToken}` },
-            });
-          
-            return next(retryReq);
+          switchMap(() => {
+            // ✅ No new token to extract — backend set new cookie in response
+            // Just retry with credentials
+            //  console.log('[Interceptor] Refresh succeeded — retrying original request');
+            return next(req.clone({ withCredentials: true }));
           }),
           catchError((refreshError) => {
-            // Refresh also failed — force logout
-            authService.logout();
+            //  console.error(`[Interceptor] ERROR ${error.status} on ${req.url}`)
+            authService.setLoggedIn(false);
+            // authService.logout();
             router.navigate(['/login']);
             return throwError(() => refreshError);
           })

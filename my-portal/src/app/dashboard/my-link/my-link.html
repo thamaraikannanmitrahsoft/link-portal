@@ -80,9 +80,13 @@
         </div>
       </div>
 
+      <!-- ── Post Actions ── -->
       <div class="post-actions">
 
-        <button class="action-btn reply">
+        <!-- Reply / Toggle Comments -->
+        <button class="action-btn reply"
+          [class.active]="post.showComments"
+          (click)="toggleComments(post); $event.stopPropagation()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="1.8">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -131,6 +135,141 @@
         </button>
 
       </div>
+
+      <!-- ── Comment Panel ── -->
+      <div class="comment-panel" *ngIf="post.showComments" (click)="$event.stopPropagation()">
+
+        <!-- Comment Input -->
+        <div class="comment-input-wrap">
+
+          <!-- Reply chip -->
+          <div class="reply-chip" *ngIf="post.replyingTo">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <polyline points="9 14 4 9 9 4"/>
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+            </svg>
+            Replying to <strong>{{ post.replyingTo.userName }}</strong>
+            <button class="chip-close" (click)="cancelReply(post)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="comment-input-row">
+            <textarea
+              class="comment-input"
+              [(ngModel)]="post.commentText"
+              placeholder="Write a comment…"
+              rows="1"
+              (keydown.enter)="$event.preventDefault(); submitComment(post)">
+            </textarea>
+            <button class="comment-send-btn"
+              [disabled]="!post.commentText?.trim()"
+              (click)="submitComment(post)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading skeletons -->
+        <div class="comment-loading" *ngIf="post.commentsLoading">
+          <div class="ck-row">
+            <div class="sk-ava sm"></div>
+            <div class="ck-lines">
+              <div class="sk-bar w40"></div>
+              <div class="sk-bar w70 mt6"></div>
+            </div>
+          </div>
+          <div class="ck-row">
+            <div class="sk-ava sm"></div>
+            <div class="ck-lines">
+              <div class="sk-bar w30"></div>
+              <div class="sk-bar w60 mt6"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment Tree -->
+        <ng-container *ngIf="!post.commentsLoading">
+
+          <!-- Empty state -->
+          <div class="comment-empty" *ngIf="post.comments?.length === 0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>No comments yet. Be the first!</span>
+          </div>
+
+          <!-- Comments list -->
+          <div class="comment-item" *ngFor="let c of post.comments">
+
+            <!-- Top-level comment -->
+            <div class="comment-row">
+              <div class="comment-avatar"
+                [style.background]="getAvatarColor(c.userId.name)">
+                {{ getInitials(c.userId.name) }}
+              </div>
+              <div class="comment-body">
+                <div class="comment-bubble">
+                  <div class="comment-meta">
+                    <span class="comment-name">{{ c.userId.name }}</span>
+                    <span class="comment-time">{{ timeAgo(c.createdAt) }}</span>
+                  </div>
+                  <p class="comment-text">{{ c.text }}</p>
+                </div>
+                <button class="reply-link" (click)="setReply(post, c)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="9 14 4 9 9 4"/>
+                    <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+                  </svg>
+                  Reply
+                </button>
+              </div>
+            </div>
+
+            <!-- Replies -->
+            <div class="comment-replies" *ngIf="c.replies && c.replies.length">
+              <div class="comment-row reply-row" *ngFor="let r of c.replies">
+                <div class="comment-avatar sm"
+                  [style.background]="getAvatarColor(r.userId.name)">
+                  {{ getInitials(r.userId.name) }}
+                </div>
+                <div class="comment-body">
+                  <div class="comment-bubble">
+                    <div class="comment-meta">
+                      <span class="comment-name">{{ r.userId.name }}</span>
+                      <span class="comment-time">{{ timeAgo(r.createdAt) }}</span>
+                    </div>
+                    <p class="comment-text">{{ r.text }}</p>
+                  </div>
+                  <button class="reply-link" (click)="setReply(post, r)">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <polyline points="9 14 4 9 9 4"/>
+                      <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+                    </svg>
+                    Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </ng-container>
+
+      </div>
+      <!-- /comment-panel -->
+
     </div>
   </article>
 

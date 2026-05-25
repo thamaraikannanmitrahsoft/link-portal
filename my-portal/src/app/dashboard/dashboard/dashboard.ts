@@ -22,8 +22,8 @@ import { environment } from '../../environments/environment';
 })
 export class Dashboard implements OnInit, OnDestroy {
 
-  name  = '';
-  email = '';
+  name      = '';
+  email     = '';
   isFabOpen = false;
 
   activeTab: 'foryou' | 'followers' | 'following' = 'foryou';
@@ -59,7 +59,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.routerSub?.unsubscribe();
   }
 
-  // ── SSO ──────────────────────────────────────────────────────
+  // ── SSO ──────────────────────────────────────────────────────────────────────
 
   private handleSsoCallback(code: string, state: string): void {
     const savedState = sessionStorage.getItem('oidc_state');
@@ -87,16 +87,15 @@ export class Dashboard implements OnInit, OnDestroy {
       redirectUri: environment.sso.redirectUri,
     }).subscribe({
       next: async (res) => {
-        if (!res?.accessToken || !res?.refreshToken) {
-          this.toastr.error('Invalid token response');
-          this.router.navigate(['/login']);
-          return;
-        }
+        // ✅ Tokens are in HttpOnly cookies — no token check or storage needed
+        // ✅ Only store non-sensitive user info
+        this.authService.saveUserInfo({
+          name:  res.data?.name,
+          email: res.data?.email,
+        });
 
-        this.authService.saveTokens(res.accessToken, res.refreshToken);
-
-        if (res.data?.name)  localStorage.setItem('name',  res.data.name);
-        if (res.data?.email) localStorage.setItem('email', res.data.email);
+        // ✅ Mark session as authenticated
+        this.authService.setLoggedIn(true);
 
         this.clearSessionStorage();
         await this.notificationService.generateToken();
@@ -114,16 +113,15 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-  // ── Init ─────────────────────────────────────────────────────
+  // ── Init ─────────────────────────────────────────────────────────────────────
 
   private initDashboard(): void {
+    // ✅ Read only non-sensitive info from localStorage
     this.name  = localStorage.getItem('name')  || '';
     this.email = localStorage.getItem('email') || '';
 
-    // Set tab from current URL on first load
     this.syncTabFromUrl(this.router.url);
 
-    // Keep tab highlight in sync whenever child route changes
     this.routerSub = this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((e: any) => {
@@ -144,7 +142,7 @@ export class Dashboard implements OnInit, OnDestroy {
     }
   }
 
-  // ── Tab switching ─────────────────────────────────────────────
+  // ── Tab Switching ─────────────────────────────────────────────────────────────
 
   switchTab(tab: 'foryou' | 'followers' | 'following'): void {
     this.activeTab = tab;
@@ -159,14 +157,14 @@ export class Dashboard implements OnInit, OnDestroy {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────────
 
   getInitials(name: string | undefined): string {
     if (!name) return '?';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
-  // ── FAB ───────────────────────────────────────────────────────
+  // ── FAB ───────────────────────────────────────────────────────────────────────
 
   toggleFab(): void {
     this.isFabOpen = !this.isFabOpen;
@@ -181,23 +179,29 @@ export class Dashboard implements OnInit, OnDestroy {
   createPost():   void { this.router.navigate(['/create-post']); }
   openComments(): void { this.closeFab(); }
 
-  // ── Navigation ────────────────────────────────────────────────
+  // ── Navigation ────────────────────────────────────────────────────────────────
 
   logout(): void {
-    localStorage.clear();
-    sessionStorage.clear();
+    // ✅ Delegate to AuthService — it calls backend to clear HttpOnly cookies
+    // this.authService.logout();
     this.router.navigate(['/login']);
   }
 
   userPage(): void {
     this.router.navigate(['/dashboard/alluser-posts']);
   }
-
-  // ── Private ───────────────────────────────────────────────────
+  dashboardPage(): void {
+    this.router.navigate(['/dashboard']);
+  }
+  // ── Private ───────────────────────────────────────────────────────────────────
 
   private clearSessionStorage(): void {
     sessionStorage.removeItem('pkce_code_verifier');
     sessionStorage.removeItem('oidc_nonce');
     sessionStorage.removeItem('oidc_state');
   }
+  // dashboard.component.ts
+get feedTitle(): string {
+  return this.router.url.includes('alluser-posts') ? 'Profile' : 'Home';
+}
 }
