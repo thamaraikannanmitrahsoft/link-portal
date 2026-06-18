@@ -1,0 +1,25 @@
+<div class="feed-header">
+  <!-- <h1 class="feed-title" style="font-family: var(--font-serif); font-style: italic;">
+    Profile
+  </h1> -->
+</div>
+
+<div class="feed-tabs">
+  <button class="feed-tab"
+    [class.active]="isActive('')"
+    (click)="navigate('')">
+    My Links
+  </button>
+  <button class="feed-tab"
+    [class.active]="isActive('following')"
+    (click)="navigate('following')">
+    Following
+  </button>
+  <button class="feed-tab"
+    [class.active]="isActive('followers')"
+    (click)="navigate('followers')">
+    Followers
+  </button>
+</div>
+
+<router-outlet></router-outlet>

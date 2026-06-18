@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable }               from '@angular/core';
-import { Observable }               from 'rxjs';
-import { environment }              from '../../app/environments/environment';
+import { HttpClient }    from '@angular/common/http';
+import { Injectable }    from '@angular/core';
+import { Observable }    from 'rxjs';
+import { environment }   from '../../app/environments/environment';
+import { SocketService } from '../service/socket-service';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -27,8 +28,7 @@ export interface Post {
   createdAt:     string;
   updatedAt:     string;
   __v:           number;
-  // UI-only flags (not from server)
-  bookmarked?: boolean;
+  bookmarked?:   boolean;
 }
 
 export interface PostsResponse {
@@ -59,112 +59,83 @@ export class PostService {
 
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  // ✅ No getHeaders() helper needed — interceptor adds withCredentials automatically
 
-  // ─── Auth header helper ────────────────────────────────────────────────────
-
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('accessToken');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type':  'application/json',
-    });
-  }
+  constructor(
+    private http:          HttpClient,
+    private socketService: SocketService,
+  ) {}
 
   // ─── Feed ──────────────────────────────────────────────────────────────────
 
   getAllPosts(): Observable<PostsResponse> {
-    return this.http.get<PostsResponse>(
-      `${this.baseUrl}/feed`,
-      { headers: this.getHeaders().set('Cache-Control', 'no-cache') },
-    );
+    // ✅ No headers — interceptor sends cookie automatically
+    return this.http.get<PostsResponse>(`${this.baseUrl}/feed`)
   }
 
   // ─── User posts ────────────────────────────────────────────────────────────
 
   getUserPosts(): Observable<UserPostsResponse> {
-    return this.http.get<UserPostsResponse>(
-      `${this.baseUrl}/user`,
-      { headers: this.getHeaders().set('Cache-Control', 'no-cache') },
-    );
+    return this.http.get<UserPostsResponse>(`${this.baseUrl}/user`);
   }
 
-  // ─── Likes ─────────────────────────────────────────────────────────────────
-  // POST   /api/userPost/:postId/like  →  like a post
-  // DELETE /api/userPost/:postId/like  →  unlike a post
+  // ─── Socket Likes ──────────────────────────────────────────────────────────
 
-  likePost(postId: string): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/userPost/${postId}/like`,
-      {},
-      { headers: this.getHeaders() },
-    );
+  likePostSocket(postId: string): void {
+    this.socketService.emit('like:post', { postId });
   }
 
-  unlikePost(postId: string): Observable<any> {
-    return this.http.delete(
-      `${this.baseUrl}/userPost/${postId}/like`,
-      { headers: this.getHeaders() },
-    );
+  unlikePostSocket(postId: string): void {
+    this.socketService.emit('unlike:post', { postId });
+  }
+
+  onLikeAck(): Observable<{ postId: string; success: boolean; likesCount: number }> {
+    return this.socketService.on('like:ack');
   }
 
   // ─── Create / Delete post ──────────────────────────────────────────────────
 
   createPost(formData: FormData): Observable<any> {
-    const token   = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-    return this.http.post(`${this.baseUrl}/userPost`, formData, { headers });
+    // ✅ No Authorization header — interceptor handles it
+    // ✅ Do NOT set Content-Type for FormData — browser sets boundary automatically
+    return this.http.post(`${this.baseUrl}/userPost`, formData);
   }
 
   deletePost(postId: string): Observable<any> {
-    return this.http.delete(
-      `${this.baseUrl}/userPost/${postId}`,
-      { headers: this.getHeaders().set('Cache-Control', 'no-cache') },
-    );
+    return this.http.delete(`${this.baseUrl}/userPost/${postId}`);
   }
 
   // ─── Comments ──────────────────────────────────────────────────────────────
 
   getComments(postId: string): Observable<any> {
-    return this.http.get(
-      `${this.baseUrl}/feed/comments/${postId}`,
-      { headers: this.getHeaders() },
-    );
+    return this.http.get(`${this.baseUrl}/userPost/${postId}/comments`);
   }
 
-  addComment(postId: string, text: string): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/feed/comments/${postId}`,
-      { text },
-      { headers: this.getHeaders() },
-    );
+  postComment(
+    postId:          string,
+    text:            string,
+    parentCommentId: string | null,
+  ): Observable<any> {
+    const body: Record<string, any> = { text };
+    if (parentCommentId) body['parentCommentId'] = parentCommentId;
+    return this.http.post(`${this.baseUrl}/userPost/${postId}/comments`, body);
   }
- getFollowers(userId: string): Observable<any> {
-  return this.http.get(
-    `${this.baseUrl}/followers/${userId}`,
-    { headers: this.getHeaders() }
-  );
-}
 
-getFollowing(): Observable<any> {
-  return this.http.get(
-    `${this.baseUrl}/following/me`,
-    { headers: this.getHeaders() }
-  );
-}
+  // ─── Follow ────────────────────────────────────────────────────────────────
 
-followUser(userId: string): Observable<any> {
-  return this.http.post(
-    `${this.baseUrl}/follow/${userId}`,
-    {},
-    { headers: this.getHeaders() }
-  );
-}
+  getFollowers(userId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/followers/${userId}`);
+  }
 
-unfollowUser(userId: string): Observable<any> {
-  return this.http.delete(
-    `${this.baseUrl}/follow/${userId}`,
-    { headers: this.getHeaders() }
-  );
-}
+  getFollowing(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/following/me`);
+  }
+
+  followUser(userId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/follow/${userId}`, {});
+  }
+
+  unfollowUser(userId: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/follow/${userId}`);
+  }
 }

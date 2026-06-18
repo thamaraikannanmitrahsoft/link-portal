@@ -1,41 +1,43 @@
-import { CommonModule }                                from '@angular/common';
+import { CommonModule }                   from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   HostListener,
+  OnDestroy,
   OnInit,
   signal,
-}                                                     from '@angular/core';
-import { ActivatedRoute, Router }                             from '@angular/router';
-import { NotificationService }                        from '../../service/notification-service';
-import { Post, PostService, UserProfile }             from '../../service/postservice';
+}                                         from '@angular/core';
+import { ActivatedRoute, Router }         from '@angular/router';
+import { Subject }                        from 'rxjs';
+import { takeUntil }                      from 'rxjs/operators';
+import { NotificationService }            from '../../service/notification-service';
+import { Post, PostService, UserProfile } from '../../service/postservice';
 
-// ─── Like state shape ─────────────────────────────────────────────────────────
 interface LikeState {
   liked: boolean;
   count: number;
 }
 
 @Component({
-  selector: 'app-all-userpost',
-  imports: [CommonModule],
-  templateUrl: './all-userpost.html',
-  styleUrl: './all-userpost.scss',
+  selector:        'app-all-userpost',
+  imports:         [CommonModule],
+  templateUrl:     './all-userpost.html',
+  styleUrl:        './all-userpost.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AllUserpost implements OnInit {
+export class AllUserpost implements OnInit, OnDestroy {
 
-  isFabOpen          = false;
-  posts:              Post[]             = [];
-  user:               UserProfile | null = null;
-  loading            = true;
-  error              = false;
-  activeMenuPostId:  string | null       = null;
+  isFabOpen         = false;
+  posts:             Post[]             = [];
+  user:              UserProfile | null = null;
+  loading           = true;
+  error             = false;
+  activeMenuPostId: string | null       = null;
 
   private menuClickedInside = false;
+  private destroy$          = new Subject<void>();         // ← for cleanup
 
-  // ─── Like signal map: postId → { liked, count } ────────────────────────────
   private likeMap = signal<Record<string, LikeState>>({});
 
   constructor(
@@ -44,10 +46,9 @@ export class AllUserpost implements OnInit {
     private cdr:                 ChangeDetectorRef,
     private route:               ActivatedRoute,
     private router:              Router,
-   
   ) {}
 
-  // ─── Host listener: close menu on outside click ────────────────────────────
+  // ─── Close menu on outside click ──────────────────────────────────────────
 
   @HostListener('document:click')
   onDocumentClick() {
@@ -61,13 +62,19 @@ export class AllUserpost implements OnInit {
     }
   }
 
-  // ─── Init ──────────────────────────────────────────────────────────────────
+  // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.loaduserPosts();
+    this.listenToLikeAck();    // ← socket ack listener
   }
 
-  // ─── Load posts ────────────────────────────────────────────────────────────
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ─── Load posts ───────────────────────────────────────────────────────────
 
   loaduserPosts(): void {
     this.loading = true;
@@ -77,22 +84,16 @@ export class AllUserpost implements OnInit {
     this.postService.getUserPosts().subscribe({
       next: (res) => {
         this.user  = res.user;
-        this.posts = (res.posts ?? []).map(p => ({
-          ...p,
-          bookmarked: false,
-        }));
+        this.posts = (res.posts ?? []).map(p => ({ ...p, bookmarked: false }));
         this.loading = false;
         this.error   = false;
 
-        // ── Preserve liked state, refresh count from server ──────────────────
-        // Read the current snapshot BEFORE overwriting so we keep
-        // liked=true for posts the user tapped in this session.
         const prev = this.likeMap();
         const map: Record<string, LikeState> = {};
         this.posts.forEach(p => {
           map[p._id] = {
-            liked: prev[p._id]?.liked ?? false,  // ← keep existing liked state
-            count: p.likesCount,                  // ← fresh count from server
+            liked: prev[p._id]?.liked ?? false,
+            count: p.likesCount,
           };
         });
         this.likeMap.set(map);
@@ -108,28 +109,25 @@ export class AllUserpost implements OnInit {
     });
   }
 
-  // ─── Like Signal Helpers ────────────────────────────────────────────────────
+  // ─── Like signal helpers ──────────────────────────────────────────────────
 
-  /** Used in template: [class.liked]="isLiked(post._id)" */
   isLiked(postId: string): boolean {
     return this.likeMap()[postId]?.liked ?? false;
   }
 
-  /** Used in template: {{ getLikeCount(post._id) }} */
   getLikeCount(postId: string): number {
     return this.likeMap()[postId]?.count ?? 0;
   }
 
-  /**
-   * Optimistic toggle → API call → re-fetch posts on success → revert on error.
-   */
+  // ─── Toggle like (socket) ─────────────────────────────────────────────────
+
   toggleLike(post: Post): void {
     const current = this.likeMap()[post._id];
     if (!current) return;
 
     const wasLiked = current.liked;
 
-    // ── Optimistic update ────────────────────────────────────────────────────
+    // 1. Optimistic update — instant feedback
     this.likeMap.update(map => ({
       ...map,
       [post._id]: {
@@ -138,32 +136,52 @@ export class AllUserpost implements OnInit {
       },
     }));
 
-    // ── API call ─────────────────────────────────────────────────────────────
-    const api$ = wasLiked
-      ? this.postService.unlikePost(post._id)
-      : this.postService.likePost(post._id);
-
-    api$.subscribe({
-      next: () => {
-        // Re-fetch to sync true count from server.
-        // loaduserPosts() reads prev likeMap snapshot so liked state is preserved.
-        this.loaduserPosts();
-      },
-      error: () => {
-        // Revert signal to state before the tap
-        this.likeMap.update(map => ({ ...map, [post._id]: current }));
-      },
-    });
+    // 2. Emit via socket — fire and forget
+    wasLiked
+      ? this.postService.unlikePostSocket(post._id)
+      : this.postService.likePostSocket(post._id);
   }
 
-  // ─── Bookmark ──────────────────────────────────────────────────────────────
+  // ─── Socket ack: correct count or roll back on failure ───────────────────
+
+  private listenToLikeAck(): void {
+    this.postService.onLikeAck()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ postId, success, likesCount }) => {
+        const current = this.likeMap()[postId];
+        if (!current) return;
+
+        if (success) {
+          // Sync server-confirmed count (keep liked state as-is)
+          this.likeMap.update(map => ({
+            ...map,
+            [postId]: { ...map[postId], count: likesCount },
+          }));
+        } else {
+          // Roll back to state before the tap
+          this.likeMap.update(map => ({
+            ...map,
+            [postId]: {
+              liked: !current.liked,
+              count: current.liked
+                ? current.count - 1
+                : current.count + 1,
+            },
+          }));
+        }
+
+        this.cdr.markForCheck();
+      });
+  }
+
+  // ─── Bookmark ─────────────────────────────────────────────────────────────
 
   toggleBookmark(post: Post): void {
     post.bookmarked = !post.bookmarked;
     this.cdr.markForCheck();
   }
 
-  // ─── Post menu ─────────────────────────────────────────────────────────────
+  // ─── Post menu ────────────────────────────────────────────────────────────
 
   toggleMenu(postId: string, event: Event): void {
     event.stopPropagation();
@@ -181,7 +199,7 @@ export class AllUserpost implements OnInit {
     this.cdr.markForCheck();
   }
 
-  // ─── Delete post ───────────────────────────────────────────────────────────
+  // ─── Delete post ──────────────────────────────────────────────────────────
 
   deletePost(postId: string, event: Event): void {
     event.stopPropagation();
@@ -203,7 +221,7 @@ export class AllUserpost implements OnInit {
     });
   }
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
+  // ─── Helpers ──────────────────────────────────────────────────────────────
 
   getInitials(name: string | undefined): string {
     if (!name) return '?';
@@ -222,7 +240,8 @@ export class AllUserpost implements OnInit {
     if (diff < 86400) return Math.floor(diff / 3600) + 'h';
     return Math.floor(diff / 86400) + 'd';
   }
-  dashboardPage(){
+
+  dashboardPage(): void {
     this.router.navigate(['/dashboard']);
   }
 }

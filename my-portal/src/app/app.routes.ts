@@ -30,35 +30,69 @@ export const routes: Routes = [
   //     import('./dashboard/dashboard/dashboard').then(m => m.Dashboard),
   // },
 
+// {
+//     path: 'dashboard',
+//     loadComponent: () =>
+//       import('./dashboard/dashboard/dashboard').then(m => m.Dashboard),
+//     children: [
+//       {
+//         path: '',
+//         loadComponent: () =>
+//           import('./dashboard/my-link/my-link').then(m => m.MyLink),
+//       },
+//       {
+//         path: 'followers',
+//         loadComponent: () =>
+//           import('./dashboard/user-follower/user-follower').then(m => m.UserFollower),
+//       },
+//       {
+//         path: 'following',
+//         loadComponent: () =>
+//           import('./dashboard/user-following/user-following').then(m => m.UserFollowing),
+//       },
+//        {
+//     path: 'alluser-posts',
+//     canActivate: [authGuard],
+//     loadComponent: () =>
+//       import('./dashboard/all-userpost/all-userpost').then(m => m.AllUserpost),
+//   },
+//     ],
+//   },
 {
-    path: 'dashboard',
-    loadComponent: () =>
-      import('./dashboard/dashboard/dashboard').then(m => m.Dashboard),
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./dashboard/my-link/my-link').then(m => m.MyLink),
-      },
-      {
-        path: 'followers',
-        loadComponent: () =>
-          import('./dashboard/user-follower/user-follower').then(m => m.UserFollower),
-      },
-      {
-        path: 'following',
-        loadComponent: () =>
-          import('./dashboard/user-following/user-following').then(m => m.UserFollowing),
-      },
-       {
-    path: 'alluser-posts',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./dashboard/all-userpost/all-userpost').then(m => m.AllUserpost),
-  },
-    ],
-  },
-
+  path: 'dashboard',
+  loadComponent: () =>
+    import('./dashboard/dashboard/dashboard').then(m => m.Dashboard),
+  children: [
+    {
+      path: '',
+      loadComponent: () =>
+        import('./dashboard/profile-shell/profile-shell').then(m => m.ProfileShell),
+      children: [
+        {
+          path: '',
+          loadComponent: () =>
+            import('./dashboard/my-link/my-link').then(m => m.MyLink),
+        },
+        {
+          path: 'followers',
+          loadComponent: () =>
+            import('./dashboard/user-follower/user-follower').then(m => m.UserFollower),
+        },
+        {
+          path: 'following',
+          loadComponent: () =>
+            import('./dashboard/user-following/user-following').then(m => m.UserFollowing),
+        },
+      ]
+    },
+    {
+      path: 'alluser-posts',
+      canActivate: [authGuard],
+      loadComponent: () =>
+        import('./dashboard/all-userpost/all-userpost').then(m => m.AllUserpost),
+    },
+  ],
+},
   {
     path: 'create-post',
     canActivate: [authGuard],
